@@ -1,0 +1,321 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Tablero de Talento — La Celada</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wght@500;600;700;800;900&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#ffffff; --soft:#f6f6f7; --ink:#131316; --panel:#ffffff;
+    --amber:#ECA72C; --orange:#EB5E2A; --grad:linear-gradient(120deg,#ECA72C 0%,#EB5E2A 100%);
+    --muted:#6b6b72; --line:#131316;
+    --lo:#E5484D; --mid:#ECA72C; --hi:#2FA96B;
+    --sh:4px 4px 0 var(--ink); --sh-sm:3px 3px 0 var(--ink);
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--ink);
+    font-family:"Space Grotesk",-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;line-height:1.5;
+    background-image:radial-gradient(55vw 38vh at 92% -8%, rgba(235,94,42,.10), transparent 60%),
+      radial-gradient(45vw 34vh at -8% 4%, rgba(236,167,44,.12), transparent 58%);}
+  .wrap{max-width:1180px;margin:0 auto;padding:26px 20px 70px}
+  .head-strip{height:7px;background:var(--grad);border-radius:999px;margin-bottom:20px}
+  header.top{display:flex;align-items:flex-end;justify-content:space-between;gap:16px;flex-wrap:wrap;margin-bottom:14px}
+  .brand{display:flex;align-items:center;gap:14px}
+  .logo{font-family:"Archivo",sans-serif;font-weight:900;font-size:19px;letter-spacing:.5px;color:#fff;
+    background:var(--grad);padding:10px 15px;border-radius:13px;border:2.5px solid var(--ink);
+    box-shadow:var(--sh);text-transform:uppercase;transform:rotate(-2deg)}
+  h1{font-family:"Archivo",sans-serif;font-size:34px;margin:0;font-weight:900;letter-spacing:-.5px;line-height:1;text-transform:uppercase}
+  .sub{color:var(--muted);font-size:13.5px;margin-top:6px;font-weight:500}
+  .meta{text-align:right;font-size:12px;color:var(--muted);font-weight:500}
+  .meta b{color:var(--ink);font-size:13px}
+  .stickers{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin:6px 0 20px}
+  .tagsticker{display:inline-block;padding:7px 14px;border-radius:999px;font-size:12px;font-weight:700;
+    border:2px solid var(--ink);box-shadow:var(--sh-sm);text-transform:uppercase;letter-spacing:.3px;background:var(--grad);color:#fff;transform:rotate(1.5deg)}
+  .toolbar{display:flex;align-items:center;gap:12px;flex-wrap:wrap;background:var(--panel);
+    border:2.5px solid var(--ink);border-radius:16px;box-shadow:var(--sh);padding:14px 16px;margin-bottom:20px}
+  .toolbar label{font-size:13px;font-weight:700;text-transform:uppercase;letter-spacing:.3px}
+  .toolbar .count{margin-left:auto;font-size:12.5px;font-weight:700;background:var(--grad);color:#fff;
+    padding:6px 13px;border-radius:999px;border:2px solid var(--ink);box-shadow:var(--sh-sm)}
+  select,button.toggle{font:inherit;font-size:13.5px;font-weight:600;padding:9px 12px;border:2.5px solid var(--ink);
+    border-radius:11px;background:#fff;color:var(--ink);cursor:pointer;box-shadow:var(--sh-sm);transition:transform .07s,box-shadow .07s}
+  select:hover,button.toggle:hover{transform:translate(-1px,-1px);box-shadow:5px 5px 0 var(--ink)}
+  select:active,button.toggle:active{transform:translate(2px,2px);box-shadow:1px 1px 0 var(--ink)}
+  #lidSel{font-weight:700;min-width:200px}
+  .grid{display:grid;grid-template-columns:1fr 1fr;gap:20px}
+  @media(max-width:900px){.grid{grid-template-columns:1fr}}
+  .card{background:var(--panel);border:2.5px solid var(--ink);border-radius:20px;box-shadow:var(--sh);padding:22px}
+  .card h2{font-family:"Archivo",sans-serif;font-size:19px;margin:0 0 3px;font-weight:800;letter-spacing:-.2px;text-transform:uppercase}
+  .card .hint{color:var(--muted);font-size:12.5px;margin:0 0 16px;font-weight:500}
+  .box-wrap{position:relative;padding-left:28px}
+  .ylabel{position:absolute;left:-6px;top:50%;transform:rotate(-90deg) translateX(50%);transform-origin:left center;
+    font-size:12px;font-weight:800;color:var(--ink);white-space:nowrap;text-transform:uppercase;letter-spacing:.5px}
+  .xlabel{text-align:center;font-size:12px;font-weight:800;color:var(--ink);margin-top:12px;text-transform:uppercase;letter-spacing:.5px}
+  .box9{position:relative;aspect-ratio:1/1;width:100%;display:grid;grid-template-columns:repeat(3,1fr);
+    grid-template-rows:repeat(3,1fr);gap:0;border:2.5px solid var(--ink);border-radius:14px;overflow:hidden}
+  .cell{position:relative;border:1px solid rgba(19,19,22,.14)}
+  .cell span.lab{position:absolute;top:7px;left:9px;font-size:9.5px;font-weight:800;pointer-events:none;max-width:92%;
+    text-transform:uppercase;letter-spacing:.3px;color:rgba(19,19,22,.62)}
+  .dots{position:absolute;inset:0;pointer-events:none}
+  .dot{position:absolute;width:30px;height:30px;border-radius:50%;transform:translate(-50%,50%);color:#fff;font-size:10.5px;
+    font-weight:800;display:grid;place-items:center;border:2.5px solid var(--ink);box-shadow:2px 2px 0 var(--ink);cursor:pointer;pointer-events:auto;transition:transform .1s ease}
+  .dot:hover,.dot.active{transform:translate(-50%,50%) scale(1.3) rotate(-4deg);z-index:5;box-shadow:3px 3px 0 var(--ink)}
+  .axis-ticks{display:flex;justify-content:space-between;font-size:11px;color:var(--muted);margin-top:6px;padding:0 2px;font-weight:700}
+  .selector{display:flex;gap:10px;align-items:center;margin-bottom:14px;flex-wrap:wrap}
+  button.toggle.on{background:var(--grad);color:#fff}
+  .radar-box{display:flex;justify-content:center}
+  .scoreline{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}
+  .chip{font-size:12px;font-weight:600;background:#fff;border:2px solid var(--ink);border-radius:999px;padding:5px 11px;box-shadow:2px 2px 0 var(--ink)}
+  .chip b{font-size:13px}
+  .chip.key{background:var(--grad);color:#fff}
+  .legend{display:flex;gap:14px;flex-wrap:wrap;font-size:12px;color:var(--ink);margin-top:16px;font-weight:700;text-transform:uppercase;letter-spacing:.3px}
+  .legend i{display:inline-block;width:13px;height:13px;border-radius:4px;margin-right:6px;vertical-align:-2px;border:2px solid var(--ink)}
+  table.mini{width:100%;border-collapse:collapse;margin-top:14px;font-size:13px}
+  table.mini th,table.mini td{text-align:left;padding:9px 10px;border-bottom:2px solid #eeeeef}
+  table.mini th{color:var(--muted);font-weight:800;text-transform:uppercase;font-size:11px;letter-spacing:.4px}
+  table.mini tr:hover td{background:#fbfbfc}
+  .tag{font-size:10.5px;font-weight:800;padding:3px 9px;border-radius:999px;color:#fff;border:2px solid var(--ink);display:inline-block}
+  footer{margin-top:32px;color:var(--muted);font-size:12px;text-align:center;font-weight:500}
+  footer b{color:var(--ink)}
+  /* Gate */
+  #gate{position:fixed;inset:0;background:#fff;display:flex;align-items:center;justify-content:center;z-index:50;
+    background-image:radial-gradient(60vw 45vh at 80% 0%, rgba(235,94,42,.14), transparent 60%),radial-gradient(50vw 40vh at 0% 100%, rgba(236,167,44,.16), transparent 60%);}
+  .gatecard{width:min(380px,92vw);background:#fff;border:2.5px solid var(--ink);border-radius:22px;box-shadow:var(--sh);padding:30px 26px;text-align:center}
+  .gatecard .logo{display:inline-block;margin-bottom:18px}
+  .gatecard h2{font-family:"Archivo",sans-serif;font-size:22px;margin:0 0 4px;text-transform:uppercase;font-weight:900}
+  .gatecard p{color:var(--muted);font-size:13px;margin:0 0 18px}
+  .gatecard input{width:100%;font:inherit;font-size:15px;padding:12px 14px;border:2.5px solid var(--ink);border-radius:12px;box-shadow:var(--sh-sm);margin-bottom:12px;text-align:center}
+  .gatecard button{width:100%;font:inherit;font-weight:800;font-size:15px;padding:12px;border:2.5px solid var(--ink);border-radius:12px;
+    background:var(--grad);color:#fff;cursor:pointer;box-shadow:var(--sh-sm);text-transform:uppercase;letter-spacing:.5px}
+  .gatecard button:active{transform:translate(2px,2px);box-shadow:1px 1px 0 var(--ink)}
+  .gate-err{color:var(--lo);font-size:12.5px;font-weight:700;min-height:18px;margin-top:4px}
+  #app{display:none}
+</style>
+</head>
+<body>
+
+<div id="gate">
+  <form class="gatecard" id="gateForm">
+    <div class="logo">La Celada</div>
+    <h2>Tablero de Talento</h2>
+    <p>Acceso restringido · ingresá la clave</p>
+    <input type="password" id="pw" placeholder="Clave de acceso" autocomplete="off" autofocus />
+    <button type="submit">Entrar</button>
+    <div class="gate-err" id="gateErr"></div>
+  </form>
+</div>
+
+<div class="wrap" id="app">
+  <div class="head-strip"></div>
+  <header class="top">
+    <div class="brand">
+      <div class="logo">La Celada</div>
+      <div>
+        <h1>Tablero de Talento</h1>
+        <div class="sub">Mapa 9BOX + perfil de competencias · Encargados Q3 2026</div>
+      </div>
+    </div>
+    <div class="meta">Última actualización<br><b id="updated">—</b></div>
+  </header>
+
+  <div class="stickers">
+    <span class="tagsticker">🎯 Talento que juega en primera</span>
+  </div>
+
+  <div class="toolbar">
+    <label for="lidSel">👀 Ver equipo de</label>
+    <select id="lidSel"></select>
+    <span class="count"><b id="cnt">0</b> encargados en vista</span>
+  </div>
+
+  <div class="grid">
+    <div class="card">
+      <h2>Matriz 9BOX</h2>
+      <p class="hint">Desempeño (Habilidades 1–4) horizontal · Potencial (Habilidad 5) vertical. Tocá un punto para ver su perfil.</p>
+      <div class="box-wrap">
+        <div class="ylabel">Potencial →</div>
+        <div class="box9" id="box9"></div>
+        <div class="axis-ticks"><span>Bajo</span><span>Medio</span><span>Alto</span></div>
+      </div>
+      <div class="xlabel">Desempeño →</div>
+      <div class="legend">
+        <span><i style="background:var(--hi)"></i>Alto</span>
+        <span><i style="background:var(--mid)"></i>Medio</span>
+        <span><i style="background:var(--lo)"></i>En desarrollo</span>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2>Perfil de competencias 🕸️</h2>
+      <p class="hint">Feedback del supervisor inmediato, promediado por competencia (escala 1–5).</p>
+      <div class="selector">
+        <select id="empSel"></select>
+        <button class="toggle" id="avgBtn">Comparar con el promedio</button>
+      </div>
+      <div class="radar-box"><svg id="radar" width="380" height="340" viewBox="0 0 380 340"></svg></div>
+      <div class="scoreline" id="scores"></div>
+    </div>
+  </div>
+
+  <div class="card" style="margin-top:20px">
+    <h2>Detalle del equipo 📋</h2>
+    <p class="hint">Puntaje de desempeño y potencial por encargado (promedio de competencias, escala 1–5).</p>
+    <table class="mini" id="tbl">
+      <thead><tr><th>Encargado</th><th>Líder</th><th>Desempeño</th><th>Potencial</th><th>Ubicación 9BOX</th></tr></thead>
+      <tbody></tbody>
+    </table>
+  </div>
+
+  <footer>Tablero de Talento · Recursos Humanos — <b>La Celada</b> · Datos protegidos</footer>
+</div>
+
+<script>
+/* ===== Datos reales cifrados (AES-GCM + PBKDF2) — se descifran con la clave ===== */
+const ENC = "F13KudN4LEVibkSUCXXxyw==.n5MzqccittS/UC1g.quiveEdJcXIhSWnX+MuVVHmQFGEk9V1i73ip0HY14cWuI7+J1VodEV6lpQOQlTHJ35GFcty9AxwChwdXPX59dTohAUIxi5CUPvGVHcx+SllKyK1n80elVQxGqdSFNoq7J1AHIj8VZIEQRWK/+EBar59uqjUbdQh6oAMxmv2xmk2S+8zIc+p3kDqvh5FHMXG4Orb0pFFDaHibd7RRA2L4K2a32iApb8gxBqiR40Q=";
+const ITER=150000;
+const b64d=s=>Uint8Array.from(atob(s),c=>c.charCodeAt(0));
+async function deriveKey(pw,salt){
+  const base=await crypto.subtle.importKey("raw",new TextEncoder().encode(pw),"PBKDF2",false,["deriveKey"]);
+  return crypto.subtle.deriveKey({name:"PBKDF2",salt,iterations:ITER,hash:"SHA-256"},base,{name:"AES-GCM",length:256},false,["decrypt"]);
+}
+async function unlock(pw){
+  const [s,i,c]=ENC.split(".").map(b64d);
+  const key=await deriveKey(pw,s);
+  const pt=await crypto.subtle.decrypt({name:"AES-GCM",iv:i},key,c);
+  return JSON.parse(new TextDecoder().decode(pt));
+}
+
+/* ===== Modelo de competencias (no sensible) ===== */
+const COMPS=[
+  {k:"Visión estratégica",    qs:[1,2]},
+  {k:"Pensamiento analítico", qs:[3,5]},
+  {k:"Liderazgo",             qs:[4,7]},
+  {k:"Visión integral",       qs:[6]},
+  {k:"Proyección",            qs:[8]},
+];
+const PERF_COMPS=[0,1,2,3], POT_COMP=4;
+const band=v=> v<2.6?0 : v<3.8?1:2;
+const BAND_COLOR=["var(--lo)","var(--mid)","var(--hi)"];
+const CELL_LABELS=[
+  ["Riesgo","Enigma","Diamante en bruto"],
+  ["Cumplidor","Mantenedor","Futuro líder"],
+  ["Especialista","Alto desempeño","Estrella"]
+];
+const CELL_BG=[["#FBD5D0","#FCE8C4","#D7F0DD"],["#FCE8C4","#FDF1C7","#CBEBD3"],["#D7F0DD","#CBEBD3","#B7E6C3"]];
+
+let EMP=[], LIDERES=[], FILTER="__all", current=null, showAvg=false;
+const visible=()=> FILTER==="__all"?EMP:EMP.filter(e=>e.lider===FILTER);
+const sc01=v=>(v-1)/4;
+const compScore=(e,ci)=>{const qs=COMPS[ci].qs;return qs.reduce((s,q)=>s+e.ans[q],0)/qs.length;};
+
+/* ===== 9BOX ===== */
+const box=document.getElementById("box9");
+(function cells(){for(let r=2;r>=0;r--)for(let c=0;c<3;c++){
+  const cell=document.createElement("div");cell.className="cell";cell.style.background=CELL_BG[r][c];
+  const lab=document.createElement("span");lab.className="lab";lab.textContent=CELL_LABELS[r][c];cell.appendChild(lab);box.appendChild(cell);
+}})();
+const dots=document.createElement("div");dots.className="dots";box.appendChild(dots);
+function renderBox(){
+  dots.innerHTML="";
+  visible().forEach(e=>{
+    const d=document.createElement("div");d.className="dot";d.dataset.id=e.id;
+    d.style.left=(sc01(e.perf)*100)+"%";d.style.bottom=(sc01(e.pot)*100)+"%";
+    d.style.background=BAND_COLOR[band(e.perf)];
+    d.textContent=e.name.replace(/[^A-Za-zÁÉÍÓÚÑ ]/g,"").trim().split(" ").slice(-1)[0].slice(0,2).toUpperCase();
+    d.title=`${e.name}\nDesempeño ${e.perf.toFixed(2)} · Potencial ${e.pot.toFixed(2)}`;
+    d.onclick=()=>select(e.id);
+    dots.appendChild(d);
+  });
+  if(current!=null){const a=dots.querySelector('.dot[data-id="'+current+'"]');if(a)a.classList.add("active");}
+}
+
+/* ===== Radar ===== */
+const svg=document.getElementById("radar");const CX=190,CY=165,R=115,N=COMPS.length;
+const pt=(i,val)=>{const ang=-Math.PI/2+i*2*Math.PI/N,r=R*val/5;return [CX+r*Math.cos(ang),CY+r*Math.sin(ang)];};
+function avgOfVisible(){const vis=visible();return COMPS.map((_,ci)=>vis.reduce((s,e)=>s+e.comps[ci],0)/(vis.length||1));}
+function drawRadar(e){
+  let s='';
+  for(let g=1;g<=5;g++){let p='';for(let i=0;i<N;i++){const[x,y]=pt(i,g);p+=`${x},${y} `;}s+=`<polygon points="${p}" fill="none" stroke="#e7e7e9" stroke-width="1.3"/>`;}
+  for(let i=0;i<N;i++){const[x,y]=pt(i,5);s+=`<line x1="${CX}" y1="${CY}" x2="${x}" y2="${y}" stroke="#e7e7e9"/>`;}
+  if(showAvg){const av=avgOfVisible();let p='';for(let i=0;i<N;i++){const[x,y]=pt(i,av[i]);p+=`${x},${y} `;}
+    s+=`<polygon points="${p}" fill="rgba(107,107,114,.10)" stroke="#6b6b72" stroke-width="2" stroke-dasharray="5 3"/>`;}
+  if(e){let p='';for(let i=0;i<N;i++){const[x,y]=pt(i,e.comps[i]);p+=`${x},${y} `;}
+    s+=`<polygon points="${p}" fill="rgba(235,94,42,.20)" stroke="#EB5E2A" stroke-width="3" stroke-linejoin="round"/>`;
+    for(let i=0;i<N;i++){const[x,y]=pt(i,e.comps[i]);s+=`<circle cx="${x}" cy="${y}" r="4" fill="#EB5E2A" stroke="#131316" stroke-width="1.5"/>`;}}
+  for(let i=0;i<N;i++){const[x,y]=pt(i,5.95);const an=Math.abs(x-CX)<6?"middle":(x>CX?"start":"end");
+    s+=`<text x="${x}" y="${y}" font-size="10.5" font-weight="700" fill="#131316" text-anchor="${an}" dominant-baseline="middle">${COMPS[i].k}</text>`;}
+  svg.innerHTML=s;
+}
+
+/* ===== Selects / tabla ===== */
+const lidSel=document.getElementById("lidSel"),empSel=document.getElementById("empSel");
+lidSel.onchange=()=>{FILTER=lidSel.value;current=null;renderAll();};
+empSel.onchange=()=>select(+empSel.value);
+document.getElementById("avgBtn").onclick=function(){showAvg=!showAvg;this.classList.toggle("on",showAvg);drawRadar(current!=null?EMP[current]:null);};
+
+function renderSelect(){
+  const vis=visible().slice().sort((a,b)=>a.name.localeCompare(b.name));
+  empSel.innerHTML=vis.map(e=>`<option value="${e.id}">${e.name}</option>`).join("");
+}
+function renderTable(){
+  const tb=document.querySelector("#tbl tbody");tb.innerHTML="";
+  visible().slice().sort((a,b)=>b.perf-a.perf).forEach(e=>{
+    const tr=document.createElement("tr");
+    tr.innerHTML=`<td style="cursor:pointer;color:var(--orange);font-weight:700">${e.name}</td>
+      <td>${e.lider}</td><td><b>${e.perf.toFixed(2)}</b></td><td><b>${e.pot.toFixed(2)}</b></td>
+      <td><span class="tag" style="background:${BAND_COLOR[band(e.perf)]}">${CELL_LABELS[band(e.pot)][band(e.perf)]}</span></td>`;
+    tr.firstElementChild.onclick=()=>{select(e.id);window.scrollTo({top:0,behavior:'smooth'});};
+    tb.appendChild(tr);
+  });
+}
+function select(id){
+  current=id;empSel.value=id;
+  document.querySelectorAll(".dot").forEach(d=>d.classList.toggle("active",+d.dataset.id===id));
+  const e=EMP[id];drawRadar(e);
+  document.getElementById("scores").innerHTML=
+    `<span class="chip key">Desempeño <b>${e.perf.toFixed(2)}</b>/5</span>`+
+    `<span class="chip key">Potencial <b>${e.pot.toFixed(2)}</b>/5</span>`+
+    COMPS.map((c,ci)=>`<span class="chip">${c.k} <b>${e.comps[ci].toFixed(1)}</b></span>`).join("");
+}
+function renderAll(){
+  document.getElementById("cnt").textContent=visible().length;
+  renderBox();renderSelect();renderTable();
+  const vis=visible();
+  if(vis.length){select(vis.slice().sort((a,b)=>a.name.localeCompare(b.name))[0].id);}
+  else{svg.innerHTML="";document.getElementById("scores").innerHTML="";}
+}
+
+function init(data){
+  EMP=data.employees.map((e,i)=>{
+    const o={id:i,name:e.name,lider:e.lider||"Sin asignar",ans:e.ans};
+    o.comps=COMPS.map((_,ci)=>compScore(o,ci));
+    o.perf=PERF_COMPS.reduce((s,ci)=>s+o.comps[ci],0)/PERF_COMPS.length;
+    o.pot=o.comps[POT_COMP];
+    return o;
+  });
+  LIDERES=[...new Set(EMP.map(e=>e.lider))].sort();
+  lidSel.innerHTML='<option value="__all">Todos los equipos</option>'+LIDERES.map(l=>`<option value="${l}">${l}</option>`).join("");
+  document.getElementById("updated").textContent=data.updated||"—";
+  renderAll();
+}
+
+/* ===== Gate ===== */
+document.getElementById("gateForm").addEventListener("submit",async(ev)=>{
+  ev.preventDefault();
+  const err=document.getElementById("gateErr");err.textContent="";
+  const pw=document.getElementById("pw").value;
+  try{
+    const data=await unlock(pw);
+    document.getElementById("gate").style.display="none";
+    document.getElementById("app").style.display="block";
+    init(data);
+  }catch(e){
+    err.textContent="Clave incorrecta";
+    document.getElementById("pw").value="";
+  }
+});
+</script>
+</body>
+</html>
